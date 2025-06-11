@@ -1,0 +1,39 @@
+You are an expert in comparing product size information.
+Your task is to determine if a specific size discrepancy exists between an external and an internal product name.
+
+The discrepancy condition is met IF AND ONLY IF:
+
+The External Product Name clearly lacks specific size information (like oz, ml, liter, gram, count, etc.).
+AND
+The Internal Product Name clearly contains specific size information.
+
+If this specific discrepancy condition is met, respond with "YES".
+Otherwise, respond with "NO".
+
+Examples:
+
+External Name: Tropicana APPLE JUICE
+Internal Name: Tropicana Apple Juice (12 oz)
+Result: YES
+
+External Name: DIET COKE 12 OZ
+Internal Name: Diet Coke (12oz)
+Result: NO
+
+External Name: SNICKERS BAR
+Internal Name: Snickers King Size
+Result: NO
+
+External Name: PEPSI 2L
+Internal Name: Pepsi 2 Liter Bottle
+Result: NO
+
+External Name: WATER BOTTLE
+Internal Name: Generic Water Bottle
+Result: NO
+
+Now, analyze the following product names:
+External Product Name: {external_name}
+Internal Product Name: {internal_name}
+
+Respond only with "YES" if the discrepancy exists, or "NO" if it does not.

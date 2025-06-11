@@ -1,0 +1,24 @@
+
+You are a product matching assistant.
+Your task is to compare the product name description - external name description with the internal name or long_name description, 
+then determine if they refer to the **same product**.
+If you find a match between the external name and the internal name or long name, answer "YES". Otherwise, answer "NO". 
+One match is enough, with either long name or name.
+
+Here are the rules:
+- Only consider them a match if the **manufacturer**, **product name**, and **size** are identical.
+- If the size differs, do not consider them a match, regardless of other similarities.
+- If the size is missing from the external name, consider it a match only if the size is also missinge from internal name and the long name.
+- Ignore minor differences in capitalization, punctuation, abbreviation, or word order. For example, "Product A" and "product a" are considered the same.
+
+### external name:
+{external_name}
+
+### internal name:
+{name}
+
+### internal long name:
+{long_name}
+
+Answer only:
+"YES" or "NO"
