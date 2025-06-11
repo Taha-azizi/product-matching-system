@@ -6,7 +6,7 @@ An intelligent system for automatically matching external supplier products
 with internal inventory items using vector similarity and LLM validation.
 
 Author: Taha Azizi
-Company: Compass Digital
+Date: 2025-05-01
 """
 
 import logging
@@ -48,7 +48,13 @@ class ProductMatchingSystem:
         """
         self.config = config
         self.data_processor = DataProcessor()
+        
+        # Verify prompts are loaded
+        if not hasattr(config, 'prompts') or not config.prompts:
+            raise ValueError("Configuration must include loaded prompts")
+            
         self.matching_engine = ProductMatchingEngine(config)
+        logger.info("Product matching system initialized with prompts loaded")
         
     def run_matching_pipeline(
         self, 
@@ -94,8 +100,8 @@ class ProductMatchingSystem:
                 internal_data, external_data
             )
             
-            # Step 5: Apply LLM validation
-            logger.info("Applying LLM validation...")
+            # Step 5: Apply LLM validation using few-shot prompting
+            logger.info("Applying LLM validation with few-shot prompting...")
             final_results = self.matching_engine.llm_validation_match(
                 internal_data, external_data
             )
@@ -108,6 +114,8 @@ class ProductMatchingSystem:
             
             # Step 7: Save results
             logger.info(f"Saving results to {output_path}...")
+            # Ensure output directory exists
+            Path(output_path).parent.mkdir(parents=True, exist_ok=True)
             final_results.to_csv(output_path, index=False)
             
             # Generate summary statistics
@@ -125,11 +133,17 @@ class ProductMatchingSystem:
         matched_count = results_df['INTERNAL_LONG_NAME'].notna().sum()
         match_rate = (matched_count / total_external) * 100
         
+        # Count size discrepancies if column exists
+        size_discrepancies = 0
+        if 'SIZE_DISCREPANCY' in results_df.columns:
+            size_discrepancies = (results_df['SIZE_DISCREPANCY'] == 'YES').sum()
+        
         logger.info(f"=== MATCHING SUMMARY ===")
         logger.info(f"Total external products: {total_external}")
         logger.info(f"Successfully matched: {matched_count}")
         logger.info(f"Match rate: {match_rate:.2f}%")
         logger.info(f"Unmatched products: {total_external - matched_count}")
+        logger.info(f"Size discrepancies found: {size_discrepancies}")
 
 
 def main():
@@ -160,16 +174,22 @@ def main():
     
     args = parser.parse_args()
     
-    # Load configuration
-    config = Config.from_file(args.config)
-    
-    # Initialize and run the system
-    system = ProductMatchingSystem(config)
-    system.run_matching_pipeline(
-        args.internal_data,
-        args.external_data, 
-        args.output
-    )
+    try:
+        # Load configuration (this will also load prompts)
+        logger.info("Loading configuration and prompts...")
+        config = Config.from_file(args.config)
+        
+        # Initialize and run the system
+        system = ProductMatchingSystem(config)
+        system.run_matching_pipeline(
+            args.internal_data,
+            args.external_data, 
+            args.output
+        )
+        
+    except Exception as e:
+        logger.error(f"Application failed: {str(e)}")
+        raise
 
 
 if __name__ == "__main__":
